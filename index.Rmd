@@ -114,8 +114,69 @@ ggplot()+
 
 The scale X code is so that we can label our dates more meaningfully.  We did a google search on "strftime" to find the codes we needs (actually listed for Linux)/  %b is the month breakout & %y is the year without the century (last 2 digits).
 
-The next assignment is to make a similar line graph, but group the deaths based on the year the person was born.
+##The next assignment is to make a similar line graph, but group the deaths based on the year the person was born.
+
+Ok so this should be easy-just copy the code & change my parametes.
+
+Not so fast-it took me a while, but with help from google I finally figured it out.
+
+It still takes me a while, but slowly I'm getting it...
+
+Since this is all in the same blog, there is no need to re-load all the libraries.
+
+IN the data base there is a BIRTH_YEAR column.  Again, some of the values are blank or are text, so we will need to filter out any "bad" data.
+
+First lets change our "read" for the csv file to brthyr as the variable. We can also look at the birthyear string (now 4 characters)
+
+```{r warning=FALSE,message=FALSE}
+brthyr<-read.csv('KoreanConflict.csv',header=TRUE,stringsAsFactors=FALSE)
+
+sum(str_detect(brthyr$BIRTH_YEAR,"\\d{4}"))
+
+```
+
+Next we'll create our data frame
+
+```{r}
+df<-brthyr%>%
+  filter(str_detect(brthyr$BIRTH_YEAR,"\\d{4}")==TRUE)%>%
+  group_by(BIRTH_YEAR)%>%
+  summarize(num_deaths=n())%>%
+  select(BIRTH_YEAR,num_deaths)
+```
+
+we're using variable df again
+filtering on the BIRTH_YEAR with only 4 digits
+grouping by the birthyear
+summing the numbers with n()
+and then creating our data with birth year & number of deaths.
 
 
+```{r}
+ggplot()+
+  geom_line(data=df, aes(x=BIRTH_YEAR,y=num_deaths,group=1),stat="identity")+
+  geom_point(data=df,aes(x=BIRTH_YEAR,y=num_deaths),stat="identity")+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  xlab("Birth Year")+
+  ylab("Number of Deaths")+
+  ggtitle("Korean Conflict Deaths by BirthYear")
+```
 
+OK so this last part is where I started to run into trouble.
+- geom_line(data=df, aes(x=BIRTH_YEAR,y=num_deaths)
+Printed the years horizontally along the bottom & did'nt print any data.  Quite frustrating
+I figured out how to rotate the year labels
+- theme(axis.text.x=element_text(angle=90,hjust=1))
+(no Idea what all those things mean (I get sxis, text & angle 90...)
+My next step was to add the 
+- geom_point(data=df,aes(x=BIRTH_YEAR,y=num_deaths))
+Well now I got data, but just the data points (no line)
+I was getting an error:
+<font color=red> geom_path: Each group consists of only one observation. Do you need to adjust the group aesthetic?</font>
+
+Back to google again, neither I nor the person posting really knows why it works, but we add "group=1" and I get a line...
+
+Then I prettied it up with a titel & better XY labels & I am finally done.
+
+It is now 6pm on a Friday night-I'm ready for a glass of Wine!
 end.
