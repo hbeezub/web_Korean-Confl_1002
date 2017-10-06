@@ -1,0 +1,121 @@
+---
+title: "blog 2017-10-02&06 working with a data set 10-2&6r"
+
+output: html_document
+---
+
+Web Post for "blog 2017-10-02&06 working with a data set 10-2&6"
+
+(blog site https://mdm-president-cake-beezub.netlify.com/)
+
+Text is basically the same as the website, this just includes the code & graphs.
+
+summary: We picked a dataset off github so we would have some different stastistics.  We learned to look for data in a specific format.
+
+Ok so we sould all be tired of Baseball by now.  It is <strong>Hockey Season </strong> afterall.  Go Otters!
+
+go to Kaggle to find an "interesting" data set.  We chose US Casualties of the Korean War Data from The U.S. National Archives and Records Administration
+
+We download a csv file (an excel file saed as a csv file)
+
+This had one worksheet with a tremendous amount of information.
+36,574 rows of data, each representing a death.  When we looked at the file there were a couple of columns that indicted death date.  One included deaths AFTER the war, we are only interested in the ones that occured during the war.  This is the INCIDENT_DATE column.  But not all this data is the date of death.  Some of the information in the column is text or zero.  Then we determined that if the data in the INCIDENT_DATE is flawed, the date is in the FATALITY column (most of the time).
+
+We want to look at only "good" data (that with a date), and then if the data isn't "good" we want to look at the fatality colum (but only good data from there as well)
+
+As with all our other projects, we'll need to install packages & load libraries.  In addition, we have to download the csv file (we could only "read" the data in the Lahman database once it was installed-we have to be able to read this new data too)
+
+```{r warning=FALSE,message=FALSE}
+library(dplyr)
+library(flexdashboard)
+library(ggplot2) 
+library(stringr)
+```
+
+
+so the first thing we need to do in our code is to read the csv file.
+
+```{r}
+deaths<-read.csv('KoreanConflict.csv',header=TRUE,stringsAsFactors=FALSE)
+```
+
+
+Stringr automatically sets the factors as columns-we don't want this so we use the stringsAsFactors=FALSE.
+
+As I mentioned, some of the dates aren't dates.  So we'll need to make sure that we only want data that is YYYMMDD or 8 digits in length.
+
+```{r}
+sum(str_detect(deaths$INCIDENT_DATE,"\\d{8}"))
+```
+
+'\\d means a digit   {8} means a pattern of 8   $ means end'
+
+Next we create a for loop to look at the data. If it is good we do nothing. If the date is bad, then we want to look at the fatality column, if that data is good, then we want to use it.
+
+```{r}
+for(i in 1:36574){
+  incident<-str_detect(deaths$INCIDENT_DATE[i],"\\d{8}")
+  fatality<-str_detect(deaths$FATALITY[i],"\\d{8}")
+  if(incident==FALSE & fatality==TRUE){
+    deaths$INCIDENT_DATE[i]<-deaths$FATALITY[i]
+  }
+}
+```
+
+Notice the {} in the for loop
+for 1 in 1:36574 goes through each row.
+Incident & fatality are assigned the 8 digit date <strong> if </strong> it is in the 8 digit format
+if the incident # is not 8 digits, but the fatality is 8 digits, 
+it makes the fatality number the incident number
+This code actually changes the data.
+(the in-class example we wrinted the lines-bit we don't want to do that here)
+
+Next we want to define the data we'll use for out line plot:
+
+```{r warning=FALSE,message=FALSE}
+library(lubridate)
+```
+
+```{r}
+df<-deaths%>%
+  filter(str_detect(deaths$INCIDENT_DATE,"\\d{8}")==TRUE)%>%
+  group_by(INCIDENT_DATE)%>%
+  summarize(num_deaths=n())%>%
+  mutate(date =ymd(INCIDENT_DATE))%>%
+  filter(date<="1953-07-27")%>%
+  select(INCIDENT_DATE,num_deaths,date)
+```
+
+- we aren't going to worry about the "one failed to parse" warning.
+The df is our dataframe variable.
+
+The filter is still looking for only 8 digit data (even though we've cleaned up the data there are still some problems).
+
+We want to group by the incident dates (date of death)
+
+To count in dplyr we use n().
+
+In order to work with dates, we need to install lubridate.  The date fiels we have is actually just a text string of numbers.
+the "mutate" line takes our digits & puts it into a year format.
+
+The filter date removes any deaths that happened after the Conflict end date of July,27,1953.
+
+Finally we select our data the incident date & the total number of deaths on that date.
+
+If we waht to look at our datafame, type head(df) into the R studio command line.  This shows us the top (head) of the data.
+
+Now we're ready to add our ggplot code:
+
+```{r}
+ggplot()+
+  geom_line(data=df, aes(x=date,y=num_deaths))+
+  scale_x_date(date_breaks ='3 months',date_labels = "%b%y")
+```
+
+The scale X code is so that we can label our dates more meaningfully.  We did a google search on "strftime" to find the codes we needs (actually listed for Linux)/  %b is the month breakout & %y is the year without the century (last 2 digits).
+
+The next assignment is to make a similar line graph, but group the deaths based on the year the person was born.
+
+
+
+end.

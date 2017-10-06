@@ -24,5 +24,5 @@ df<-deaths%>%
 
 ggplot()+
   geom_line(data=df, aes(x=date,y=num_deaths))+
-  scale_x_date(date_breaks='3months',date_labels = "%b%y")
+  scale_x_date(date_breaks='3 months',date_labels = "%b%y")
 
