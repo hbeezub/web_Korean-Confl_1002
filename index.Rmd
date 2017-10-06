@@ -1,5 +1,5 @@
 ---
-title: "blog 2017-10-02&06 working with a data set 10-2&6r"
+title: "blog 2017-10-02&06 working with a data set 10-2&6"
 
 output: html_document
 ---
