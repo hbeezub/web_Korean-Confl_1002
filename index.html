@@ -206,7 +206,7 @@ sum(str_detect(brthyr$BIRTH_YEAR,&quot;\\d{4}&quot;))</code></pre>
 <p>OK so this last part is where I started to run into trouble. - geom_line(data=df, aes(x=BIRTH_YEAR,y=num_deaths) Printed the years horizontally along the bottom &amp; did’nt print any data. Quite frustrating I figured out how to rotate the year labels - theme(axis.text.x=element_text(angle=90,hjust=1)) (no Idea what all those things mean (I get sxis, text &amp; angle 90…) My next step was to add the - geom_point(data=df,aes(x=BIRTH_YEAR,y=num_deaths)) Well now I got data, but just the data points (no line) I was getting an error: <font color="red"> geom_path: Each group consists of only one observation. Do you need to adjust the group aesthetic?</font></p>
 <p>Back to google again, neither I nor the person posting really knows why it works, but we add “group=1” and I get a line…</p>
 <p>Then I prettied it up with a titel &amp; better XY labels &amp; I am finally done.</p>
-<p>It is now 6pm on a Friday night-I’m ready for a glass of Wine! end.</p>
+<p>It is now 6pm on a Friday night-I’m ready for a glass of Wine! Let’s try re-knitting… end.</p>
 </div>
 
 
